@@ -36,11 +36,7 @@ pipeline {
       steps {
         script {
           echo "Building backend and frontend images with docker-compose..."
-          sh """
-            docker compose build \
-              --build-arg BACKEND_IMAGE=${env.BACKEND_FULL_IMAGE} \
-              --build-arg FRONTEND_IMAGE=${env.FRONTEND_FULL_IMAGE}
-          """
+          sh "docker compose build"
         }
       }
     }
