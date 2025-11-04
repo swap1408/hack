@@ -36,7 +36,7 @@ pipeline {
       steps {
         script {
           echo "Building backend and frontend images with docker-compose..."
-          sh "docker compose build"
+          sh "docker-compose build"
         }
       }
     }
@@ -67,8 +67,8 @@ pipeline {
               ssh -o StrictHostKeyChecking=no ${params.DEPLOY_USER}@${params.DEPLOY_HOST} \\
                 'export BACKEND_IMAGE=${env.BACKEND_FULL_IMAGE} && \\
                  export FRONTEND_IMAGE=${env.FRONTEND_FULL_IMAGE} && \\
-                 docker compose -f /tmp/docker-compose.yml pull && \\
-                 docker compose -f /tmp/docker-compose.yml up -d --remove-orphans'
+                 docker-compose -f /tmp/docker-compose.yml pull && \\
+                 docker-compose -f /tmp/docker-compose.yml up -d --remove-orphans'
             """
           }
         }
