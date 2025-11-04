@@ -27,6 +27,38 @@ pipeline {
       }
     }
 
+    // ✅ NEW: Ensure Docker Hub Repositories Exist
+    stage('Ensure Docker Hub Repositories Exist') {
+      steps {
+        script {
+          withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS, usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+            echo "🧩 Ensuring Docker Hub repositories exist or are updated..."
+            sh """
+              for repo in ${BACKEND_IMAGE} ${FRONTEND_IMAGE}; do
+                echo "Checking repository: \$repo"
+                RESPONSE=\$(curl -s -o /dev/null -w "%{http_code}" -u \$DOCKER_USER:\$DOCKER_PASS https://hub.docker.com/v2/repositories/\$DOCKER_USER/\$repo/)
+                
+                if [ "\$RESPONSE" = "404" ]; then
+                  echo "🔧 Repository \$repo not found — creating..."
+                  curl -s -u \$DOCKER_USER:\$DOCKER_PASS -X POST https://hub.docker.com/v2/repositories/ -H "Content-Type: application/json" -d '{
+                    "name": "'\$repo'",
+                    "namespace": "'\$DOCKER_USER'",
+                    "is_private": false,
+                    "description": "Auto-created by Jenkins pipeline for project deployment"
+                  }'
+                else
+                  echo "✅ Repository \$repo already exists — updating visibility to public..."
+                  curl -s -u \$DOCKER_USER:\$DOCKER_PASS -X PATCH https://hub.docker.com/v2/repositories/\$DOCKER_USER/\$repo/ -H "Content-Type: application/json" -d '{
+                    "is_private": false
+                  }'
+                fi
+              done
+            """
+          }
+        }
+      }
+    }
+
     stage('Build Docker Images') {
       steps {
         script {
