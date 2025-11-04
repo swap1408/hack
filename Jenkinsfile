@@ -27,20 +27,19 @@ pipeline {
       }
     }
 
-    stage('Build backend & frontend images') {
+    stage('Build Docker Images') {
       steps {
         script {
-          echo "🏗️ Building backend & frontend images..."
+          echo "🏗️ Building backend & frontend Docker images manually..."
           sh """
-            BACKEND_IMAGE=${BACKEND_FULL_IMAGE} \
-            FRONTEND_IMAGE=${FRONTEND_FULL_IMAGE} \
-            docker-compose build
+            docker build -t ${BACKEND_FULL_IMAGE} ./backend
+            docker build -t ${FRONTEND_FULL_IMAGE} ./frontend
           """
         }
       }
     }
 
-    stage('Push images to Docker Hub') {
+    stage('Push Images to Docker Hub') {
       steps {
         script {
           withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS, usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
@@ -65,7 +64,7 @@ pipeline {
               # Copy docker-compose.yml to remote host
               scp -i \$SSH_KEY -o StrictHostKeyChecking=no docker-compose.yml ${DEPLOY_USER}@${DEPLOY_HOST}:/tmp/docker-compose.yml
 
-              # SSH into EC2 and run deployment
+              # SSH into EC2 and deploy containers
               ssh -i \$SSH_KEY -o StrictHostKeyChecking=no ${DEPLOY_USER}@${DEPLOY_HOST} '
                 cd /tmp &&
                 BACKEND_IMAGE=${BACKEND_FULL_IMAGE} FRONTEND_IMAGE=${FRONTEND_FULL_IMAGE} \\
