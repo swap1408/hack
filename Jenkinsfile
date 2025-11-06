@@ -8,7 +8,7 @@ pipeline {
     IMAGE_TAG          = "${env.BUILD_NUMBER}"
     DOCKER_CREDENTIALS = 'docker-hub-creds'   // Docker Hub creds ID
     SSH_CREDENTIALS    = 'ansible-ssh-key'    // SSH key creds ID
-    DEPLOY_HOST        = '172.31.19.56'       // Target EC2 IP
+    DEPLOY_HOST        = '172.31.25.80'       // Target EC2 IP
     DEPLOY_USER        = 'ubuntu'             // SSH username
     BACKEND_FULL_IMAGE = "${REGISTRY}/${BACKEND_IMAGE}:${IMAGE_TAG}"
     FRONTEND_FULL_IMAGE = "${REGISTRY}/${FRONTEND_IMAGE}:${IMAGE_TAG}"
